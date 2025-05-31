@@ -14,7 +14,7 @@ async function sendMessage() {
 
     const loadingMessage = document.createElement('div');
     loadingMessage.classList.add('message', 'bot');
-    loadingMessage.innerHTML = 'DebatAI está digitando <span class="loading"></span>';
+    loadingMessage.innerHTML = 'DiscutAI está digitando <span class="loading"></span>';
     chatBox.appendChild(loadingMessage);
     chatBox.scrollTop = chatBox.scrollHeight;
 
