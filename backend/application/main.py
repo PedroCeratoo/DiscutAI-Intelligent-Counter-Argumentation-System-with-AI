@@ -1,35 +1,53 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
-from transformers import pipeline
 from fastapi.middleware.cors import CORSMiddleware
+import requests
+from typing import Dict
 
 class MensagemEntrada(BaseModel):
     mensagem: str
-
 
 app = FastAPI()
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-chatbot = pipeline("text-generation", model="gpt2", max_new_tokens=200)
-
 @app.post("/api/debate")
-async def gerar_resposta(mensagem: MensagemEntrada):
-    prompt = (
-        f"Você é DiscutAI, um debatedor inteligente e rigoroso. "
-        f"Sua única função é sempre contra-argumentar de forma lógica, educada e bem fundamentada, mesmo que o argumento do usuário pareça correto. "
-        f"Não concorde, não elogie, apenas refute ou apresente um ponto de vista alternativo. "
-        f"Sua resposta deve ser exclusivamente em português do Brasil.\n\n"
-        f"Argumento do Usuário: {mensagem.mensagem}\nDiscutAI:"
-    )
-    resultado = chatbot(prompt, do_sample=True, temperature=0.7)[0]["generated_text"]
-    resposta = resultado.split("DiscutAI:")[-1].strip()
+def debater(mensagem: MensagemEntrada):
+    resposta = gerar_resposta_ollama(mensagem.mensagem)
     return {"resposta": resposta}
 
 
+def gerar_resposta_ollama(user_input: str) -> str:
+    url = "http://localhost:11434/api/generate"
+    
+    # Prompt base (contexto do sistema)
+    prompt_base = (
+        "Você é um bot de contra argumentação chamado DiscutAI. "
+        "Seu papel é ajudar alunos do ensino fundamental a pensar criticamente. "
+        "Dada uma afirmação ou opinião, sua tarefa é apresentar uma contra-argumentação clara, "
+        "respeitosa, sucinta e com linguagem apropriada para crianças. "
+        "Evite termos complexos e use exemplos simples quando possível.\n\n"
+        "Quando possível, cite dados ou artigos científicos para dar credibilidade na sua resposta\n\n"
+        f"Afirmativa do aluno: {user_input}\n"
+        "Contra-argumento:"
+    )
+    
+    payload = {
+        "model": "gemma",  # ou "llama3" se estiver usando outro modelo
+        "prompt": prompt_base,
+        "stream": False
+    }
+
+    try:
+        response = requests.post(url, json=payload, timeout=60)
+        response.raise_for_status()
+        resultado = response.json()
+        return resultado.get("response", "Erro: sem resposta do modelo.")
+    except Exception as e:
+        return f"Erro ao gerar resposta: {e}"
