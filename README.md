@@ -11,7 +11,6 @@ A interface foi desenvolvida com **HTML, CSS e JavaScript**, com foco na simplic
 A comunicação entre o frontend e o backend é feita através de uma requisição HTTP (`fetch`) para a API. O código da interface está disponível neste repositório, ou pode ser acessado diretamente no seguinte link:
 
 🔗 **[DiscutAI - Intelligent Counter-Argumentation System with AI](https://github.com/)**  
-*(insira o link correto do seu repositório)*
 
 ---
 
