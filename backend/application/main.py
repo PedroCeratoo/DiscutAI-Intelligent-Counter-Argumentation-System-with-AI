@@ -26,7 +26,6 @@ def debater(mensagem: MensagemEntrada):
 def gerar_resposta_ollama(user_input: str) -> str:
     url = "http://localhost:11434/api/generate"
     
-    # Prompt base (contexto do sistema)
     prompt_base = (
         "Você é um bot de contra argumentação chamado DiscutAI. "
         "Seu papel é ajudar alunos do ensino fundamental a pensar criticamente. "
@@ -39,7 +38,7 @@ def gerar_resposta_ollama(user_input: str) -> str:
     )
     
     payload = {
-        "model": "gemma",  # ou "llama3" se estiver usando outro modelo
+        "model": "gemma",
         "prompt": prompt_base,
         "stream": False
     }
